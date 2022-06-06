@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css'%}" type="text/css">
+</head>
+
+<body>
+
+<div class="wrapper">
+    <header class="header">
+        <a href="{% url 'main_page' %}">MAIN</a> |
+        <a href="{% url 'articles' %}">ARTICLES</a> |
+        <a href="{% url 'archive' %}">ARCHIVE</a>
+    </header>
+
+	<main class="main">
+        <div>
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <footer class="footer">
+        <a href="{% url 'main_page' %}">MAIN</a><br>
+        <a href="{% url 'articles' %}">ARTICLES</a><br>
+        <a href="{% url 'archive' %}">ARCHIVE</a>
+    </footer>
+</div>
+
+
+</body>
+</html>

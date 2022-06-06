@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>main block</h1>
+
+
+{% with num='1234567890' seq='abcdefghijklmnopqrstuvwxyz' %}
+  {% with id1=num|random id2=num|random id3=num|random id4=num|random s1=seq|random s2=seq|random s3=seq|random s4=seq|random s5=seq|random %}
+    {% with id=id1|add:id2|add:id3|add:id4 slug=s1|add:s2|add:s3|add:s4|add:s5  %}
+        <ul>
+          <li><a href="{% url 'article' id %}">Go to article #{{id}}</a></li>
+          <li><a href="{% url 'article' id slug %}">Go to article #{{id}} with slug "{{slug}}"</a></li>
+        </ul>
+    {% endwith %}
+  {% endwith %}
+{% endwith %}
+
+
+{% endblock %}

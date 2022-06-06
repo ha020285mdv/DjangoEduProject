@@ -1,31 +1,28 @@
 from django.http import HttpResponse
+from django.shortcuts import render
 
 
-def main(request):
-    return HttpResponse("My first DJANGO view")
+def first(request):
+    return render(request, 'index.html', {'title': 'Head'})
 
 
-def acricles(request):
-    return HttpResponse("This is the articles store")
+def articles(request):
+    return render(request, 'articles.html', {'title': 'List of articles'})
 
 
-def acricles_archive(request):
-    return HttpResponse("This is the articles archive")
-
-
-def users(request, user_number=None):
-    return HttpResponse(f"User ID:<h2>{user_number}</h2>" if user_number else "Users list")
+def archive(request):
+    years = [year for year in range(2000, 2023)]
+    return render(request, 'archive.html', {'title': 'Archive of articles',
+                                            'years': years
+                                            })
 
 
 def article_hundler(request, article_number, slug_text=''):
-    response = f"Article #: <h2>{article_number}</h2>"
-    if slug_text:
-        if slug_text == 'archive':
-            response += ' archived version'
-        else:
-            response += f"has name <h2>{slug_text}</h2"
-
-    return HttpResponse(response)
+    title = 'Article #' + str(article_number) + (('/'+ slug_text) if slug_text else '')
+    return render(request, 'article.html', {'title': title,
+                                            'number': article_number,
+                                            'slug': slug_text
+                                            })
 
 
 def uuid(request, uuid):
@@ -34,3 +31,4 @@ def uuid(request, uuid):
 
 def phone_regex(request, phone):
     return HttpResponse(f"Personal account of ukrainian abonent: <h2>+38 ({phone[:3]}) {phone[3:-1]}</h2>")
+

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h1>List of articles by year:</h1>
+    <ul>
+        {% for n in years reversed %}
+            <li>{{n}}</li>
+        {% endfor %}
+    </ul>
+
+
+{% endblock %}
