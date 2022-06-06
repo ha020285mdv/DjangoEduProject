@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>id ({{ number }}) is {% if number|divisibleby:2 %} even {% else %} odd {% endif %}</h2>
+
+{% if slug %} {% include 'extra.html' %} {% endif %}
+
+
+<h1>{% lorem 3 w random %}</h1>
+<i>{% now "jS F Y H:i" %}</i>
+{% lorem 5 p random %}
+
+
+{% endblock %}
