@@ -114,6 +114,7 @@ class Article(models.Model):
     date_of_moderation = models.DateField(auto_now_add=True)
     is_public = models.BooleanField(default=False)
     likes = GenericRelation('Like')
+    comments = GenericRelation('Comment')
 
     def __str__(self):
         return self.title
@@ -122,18 +123,29 @@ class Article(models.Model):
         verbose_name = '3_Article'
 
 class Comment(models.Model):
+    #коммент на коммент сделал также через generic (можно было сделать ForeignKey на self), но так "моднее")
     comment = models.TextField(max_length=300)
     author = models.ForeignKey(Profile, on_delete=CASCADE)
     date = models.DateTimeField(auto_now=True)
     likes = GenericRelation('Like')
+    comments = GenericRelation('self')
+    limit = models.Q(app_label='myapp', model='article') | models.Q(app_label='myapp', model='comment')
+    content_type = models.ForeignKey(ContentType, limit_choices_to=limit, on_delete=CASCADE)
+    object_id = models.PositiveIntegerField()
+    liked_object = GenericForeignKey('content_type', 'object_id')
 
     def __str__(self):
-        return f"{self.author}'s comment: {self.comment[:15]}"
+        return f"{self.author}'s comment for '{self.liked_object}': {self.comment[:15]}"
 
     class Meta:
         verbose_name = '3_Comment'
 
 class Like(models.Model):
+    LIKE_OPTIONS = (
+        ('L', 'Like'),
+        ('D', 'Dislike'),
+    )
+    type = models.CharField(max_length=1, choices=LIKE_OPTIONS, default='L')
     author = models.ForeignKey(Profile, on_delete=CASCADE)
     date = models.DateTimeField(auto_now=True)
     limit = models.Q(app_label='myapp', model='article') | models.Q(app_label='myapp', model='comment')
@@ -142,7 +154,7 @@ class Like(models.Model):
     liked_object = GenericForeignKey('content_type', 'object_id')
 
     def __str__(self):
-        return f"{self.author}'s like for {self.liked_object}"
+        return f"{self.author}'s {self.type} for {self.liked_object}"
 
     class Meta:
         verbose_name = '3_Like'
