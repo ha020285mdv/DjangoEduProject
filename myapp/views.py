@@ -31,4 +31,3 @@ def uuid(request, uuid):
 
 def phone_regex(request, phone):
     return HttpResponse(f"Personal account of ukrainian abonent: <h2>+38 ({phone[:3]}) {phone[3:-1]}</h2>")
-
