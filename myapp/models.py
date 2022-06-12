@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -6,6 +8,9 @@ from django.db.models import SET_NULL, CASCADE
 
 # 1. Разрабатываем каталог книг, у каждой книги обязательно есть автор, и он может быть только один.
      #(!!!чтобы не копипастить код во 2-е задание я сделал упрощенное представление, а во втором уже старался прокачать)
+from django.utils import timezone
+
+
 class Writer(models.Model):
     name = models.CharField(max_length=200, unique=True)
     dob = models.DateField()
@@ -123,10 +128,9 @@ class Article(models.Model):
         verbose_name = '3_Article'
 
 class Comment(models.Model):
-    #коммент на коммент сделал также через generic (можно было сделать ForeignKey на self), но так "моднее")
     comment = models.TextField(max_length=300)
     author = models.ForeignKey(Profile, on_delete=CASCADE)
-    date = models.DateTimeField(auto_now=True)
+    date = models.DateTimeField(auto_now=False)
     likes = GenericRelation('Like')
     comments = GenericRelation('self')
     limit = models.Q(app_label='myapp', model='article') | models.Q(app_label='myapp', model='comment')
@@ -137,8 +141,14 @@ class Comment(models.Model):
     def __str__(self):
         return f"{self.author}'s comment for '{self.liked_object}': {self.comment[:15]}"
 
+    def save(self, **kwargs):
+        if not self.id:
+            self.date = timezone.now() - timedelta(days=365)
+        super().save(**kwargs)
+
     class Meta:
         verbose_name = '3_Comment'
+        ordering = ["-id"]
 
 class Like(models.Model):
     LIKE_OPTIONS = (
