@@ -1,5 +1,4 @@
-
-
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
@@ -78,7 +77,7 @@ def homework4(request):
     content['task5'] = 'done'
 
     # 6. Получить первые 2 комментария по дате создания к статье у которой имя автора последнее по алфавиту.
-    content['task6'] = Comment.objects.filter(content_type_id=15).order_by('date', '-article__author')[:2]
-    # content_type_id=15 - to select the only comments for articles
+    article_model_id = ContentType.objects.get(model='article').id  # to find the articles model id in generic_relation
+    content['task6'] = Comment.objects.filter(content_type_id=article_model_id).order_by('date', '-article__author')[:2]
 
     return render(request, 'homework4.html', content)
