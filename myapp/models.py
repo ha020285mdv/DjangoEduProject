@@ -1,3 +1,6 @@
+from datetime import timedelta
+import datetime
+
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -6,6 +9,9 @@ from django.db.models import SET_NULL, CASCADE
 
 # 1. Разрабатываем каталог книг, у каждой книги обязательно есть автор, и он может быть только один.
      #(!!!чтобы не копипастить код во 2-е задание я сделал упрощенное представление, а во втором уже старался прокачать)
+from django.utils import timezone
+
+
 class Writer(models.Model):
     name = models.CharField(max_length=200, unique=True)
     dob = models.DateField()
@@ -114,7 +120,7 @@ class Article(models.Model):
     date_of_moderation = models.DateField(auto_now_add=True)
     is_public = models.BooleanField(default=False)
     likes = GenericRelation('Like')
-    comments = GenericRelation('Comment')
+    comments = GenericRelation('Comment', related_query_name='article')
 
     def __str__(self):
         return self.title
@@ -123,10 +129,9 @@ class Article(models.Model):
         verbose_name = '3_Article'
 
 class Comment(models.Model):
-    #коммент на коммент сделал также через generic (можно было сделать ForeignKey на self), но так "моднее")
     comment = models.TextField(max_length=300)
     author = models.ForeignKey(Profile, on_delete=CASCADE)
-    date = models.DateTimeField(auto_now=True)
+    date = models.DateTimeField(auto_now=False)
     likes = GenericRelation('Like')
     comments = GenericRelation('self')
     limit = models.Q(app_label='myapp', model='article') | models.Q(app_label='myapp', model='comment')
@@ -137,8 +142,24 @@ class Comment(models.Model):
     def __str__(self):
         return f"{self.author}'s comment for '{self.liked_object}': {self.comment[:15]}"
 
+    def save(self, **kwargs):
+        def delta_years(dt, years):
+            try:
+                result = datetime.datetime(dt.year + years, dt.month, dt.day, dt.hour, dt.minute, dt.second,
+                                           dt.microsecond,
+                                           dt.tzinfo)
+            except ValueError:
+                result = datetime.datetime(dt.year + years, dt.month, dt.day - 1, dt.hour, dt.minute, dt.second,
+                                           dt.microsecond, dt.tzinfo)
+            return result
+
+        if not self.id:
+            self.date = delta_years(timezone.now(), -1)
+        super().save(**kwargs)
+
     class Meta:
         verbose_name = '3_Comment'
+        ordering = ["-id"]
 
 class Like(models.Model):
     LIKE_OPTIONS = (
