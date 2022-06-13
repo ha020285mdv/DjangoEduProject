@@ -120,7 +120,7 @@ class Article(models.Model):
     date_of_moderation = models.DateField(auto_now_add=True)
     is_public = models.BooleanField(default=False)
     likes = GenericRelation('Like')
-    comments = GenericRelation('Comment')
+    comments = GenericRelation('Comment', related_query_name='article')
 
     def __str__(self):
         return self.title

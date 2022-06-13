@@ -78,11 +78,7 @@ def homework4(request):
     content['task5'] = 'done'
 
     # 6. Получить первые 2 комментария по дате создания к статье у которой имя автора последнее по алфавиту.
-    author = Profile.objects.order_by('name').last()
-    article = Article.objects.filter(author=author).last() #взял самую "свежую" статью автора
-    task6 = article.comments.all().order_by('date')[:2]
-
-    content['task6'] = task6
+    content['task6'] = Comment.objects.filter(content_type_id=15).order_by('date', '-article__author')[:2]
+    # content_type_id=15 - to select the only comments for articles
 
     return render(request, 'homework4.html', content)
-
