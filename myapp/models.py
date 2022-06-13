@@ -1,4 +1,5 @@
 from datetime import timedelta
+import datetime
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -142,8 +143,18 @@ class Comment(models.Model):
         return f"{self.author}'s comment for '{self.liked_object}': {self.comment[:15]}"
 
     def save(self, **kwargs):
+        def delta_years(dt, years):
+            try:
+                result = datetime.datetime(dt.year + years, dt.month, dt.day, dt.hour, dt.minute, dt.second,
+                                           dt.microsecond,
+                                           dt.tzinfo)
+            except ValueError:
+                result = datetime.datetime(dt.year + years, dt.month, dt.day - 1, dt.hour, dt.minute, dt.second,
+                                           dt.microsecond, dt.tzinfo)
+            return result
+
         if not self.id:
-            self.date = timezone.now() - timedelta(days=365)
+            self.date = delta_years(timezone.now(), -1)
         super().save(**kwargs)
 
     class Meta:

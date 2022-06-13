@@ -1,7 +1,8 @@
-from django.utils import timezone
+
 
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.utils import timezone
 
 from myapp.models import Comment, Profile, Article
 
@@ -84,3 +85,4 @@ def homework4(request):
     content['task6'] = task6
 
     return render(request, 'homework4.html', content)
+
