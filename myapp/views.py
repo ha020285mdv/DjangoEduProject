@@ -39,18 +39,9 @@ def phone_regex(request, phone):
 
 def homework4(request):
     content = {'title': 'Homework #4'}
-
-    #все что было возможно делал через shell - здесь сохранил текст комманд
-
-    # 1. Получить 5 последних написанных комментариев (именно текст)
     content['task1'] = Comment.objects.order_by('-date')[:5]
-
-    # 2. Создать 5 комментариев с разным текстом, Хотя бы один должен начинаться со слова "Start",
-    #    хоть один в середине должен иметь слово "Middle", хоть один должен заканчиваться словом "Finish".
-
     # comment = Comment(comment='Comment to test', author_id='4', content_type_id='15', object_id='2')
     # comment.save()
-
     # objs = Comment.objects.bulk_create([
     #     Comment(comment='Start testing', author_id='1', content_type_id='14', object_id='2', date=timezone.now()),
     #     Comment(comment='With middle text', author_id='3', content_type_id='15', object_id='1', date=timezone.now()),
@@ -59,24 +50,13 @@ def homework4(request):
     #     Comment(comment='I like it!', author_id='3', content_type_id='14', object_id='3', date=timezone.now()),
     #     ])
     content['task2'] = 'done'
-
-    # 3. Переписать сейв комментария так, что бы при создании дата менялась бы на год назад (если
-    # сегодня 20 декабря 2021, должна выставляться 20 декабря 2020), изменение комментариев не затрагивать.
-    #  ==== implemented in Models.py ====
     content['task3'] = 'done'
-
-    # 4. Изменить комментарии со словами "Start", "Middle", "Finish"
-
     # Comment.objects.filter(comment__istartswith='start').update(comment='START')
     # Comment.objects.filter(comment__icontains='middle').update(comment='MIDDLE')
     # Comment.objects.filter(comment__iendswith='finish').update(comment='FINISH')
     content['task4'] = 'done'
-
-    # 5. Удалить все комментарии у которых в тексте есть буква "k", но не удалять если есть буква "с".
     # Comment.objects.filter(comment__icontains='k').exclude(comment__icontains='c').delete()
     content['task5'] = 'done'
-
-    # 6. Получить первые 2 комментария по дате создания к статье у которой имя автора последнее по алфавиту.
     article_model_id = ContentType.objects.get(model='article').id  # to find the articles model id in generic_relation
     content['task6'] = Comment.objects.filter(content_type_id=article_model_id).order_by('date', '-article__author')[:2]
 

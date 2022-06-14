@@ -1,14 +1,9 @@
-from datetime import timedelta
 import datetime
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import SET_NULL, CASCADE
-
-
-# 1. Разрабатываем каталог книг, у каждой книги обязательно есть автор, и он может быть только один.
-     #(!!!чтобы не копипастить код во 2-е задание я сделал упрощенное представление, а во втором уже старался прокачать)
 from django.utils import timezone
 
 
@@ -33,8 +28,6 @@ class Publication(models.Model):
     class Meta:
         verbose_name = '1_Book'
 
-# 2. Разработать книжную библиотеку. Храним книги, храним авторов, книгу могут написать несколько соавторов.
-#    Xраним кто брал книги, и доступна ли книга сейчас.
 
 class Member(models.Model):
     name = models.CharField(max_length=200)
@@ -78,7 +71,6 @@ class Book(models.Model):
     ]
     title = models.CharField(max_length=250)
     author = models.ManyToManyField(Author)
-    #  хотел сделать Автора обязательным, но прочитал что в случае M2M такая валидация делается на уровне контроллера
     original_lang = models.CharField(max_length=2, choices=LANGUAGE_CHOICES, default=OTHER)
     year_of_public = models.DateField()
     date_of_getting = models.DateField(auto_now=True)
@@ -92,10 +84,6 @@ class Book(models.Model):
     class Meta:
         verbose_name = '2_Book'
 
-# Разработать набор моделей, для сайта-блога, на котором можно выставлять свои статьи,
-#  комментировать чужие, ставить лайк и дизлайк статье, и комментарию.
-#  3.1* Доделать так, что бы связи позволяли комментировать комментарии.
-#  3.2* Сделать лайки через GenericForeignKey
 
 class Profile(models.Model):
     login = models.CharField(max_length=50, unique=True)
@@ -110,6 +98,7 @@ class Profile(models.Model):
 
     class Meta:
         verbose_name = '3_User'
+
 
 class Article(models.Model):
     author = models.ForeignKey(Profile, on_delete=CASCADE)
@@ -131,7 +120,7 @@ class Article(models.Model):
 class Comment(models.Model):
     comment = models.TextField(max_length=300)
     author = models.ForeignKey(Profile, on_delete=CASCADE)
-    date = models.DateTimeField(auto_now=False)
+    date = models.DateTimeField(default=timezone.now)
     likes = GenericRelation('Like')
     comments = GenericRelation('self')
     limit = models.Q(app_label='myapp', model='article') | models.Q(app_label='myapp', model='comment')
