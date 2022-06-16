@@ -16,7 +16,14 @@
     <header class="header">
         <a href="{% url 'main_page' %}">MAIN</a> |
         <a href="{% url 'articles' %}">ARTICLES</a> |
-        <a href="{% url 'archive' %}">ARCHIVE</a>
+        <a href="{% url 'archive' %}">ARCHIVE</a> |
+        {% if user.is_authenticated %}
+            logined as <b>{{user.username}}</b>
+            <a href="{% url 'logout' %}">logout</a> / <a href="{% url 'pass_chng' %}">change password</a>
+        {% else %}
+            <a href="{% url 'login' %}">login</a> / <a href="{% url 'register' %}">register</a>
+        {% endif %}
+
     </header>
 
 	<main class="main">

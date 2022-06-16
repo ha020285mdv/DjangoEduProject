@@ -1,9 +1,12 @@
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils import timezone
 
-from myapp.forms import CheckRequirementsForm
+from myapp.forms import CheckRequirementsForm, AuthForm, RegisterForm, ChangePasswordForm
 from myapp.models import Comment, Profile, Article
 
 
@@ -73,26 +76,77 @@ def check_requirements_form_view(request):
             age = int(request.POST['age'])
             level = request.POST['english_level']
 
-            is_fit = (sex=='m' and age>=20 and level in ['C1', 'C2']) or \
-                     (sex=='f' and age>=22 and level in ['B2', 'C1', 'C2'])
+            is_fit = (sex == 'm' and age >= 20 and level in ['C1', 'C2']) or \
+                     (sex == 'f' and age >= 22 and level in ['B2', 'C1', 'C2'])
             content = {'name': name, 'fit': is_fit, 'title': "Congratulations!" if is_fit else "Don't worry!"}
 
             return render(request, 'form_answer.html', content)
     else:
-        form = CheckRequirementsForm()
+        initial = {'name': (request.user.first_name or request.user.username) if request.user.is_authenticated else ''}
+        form = CheckRequirementsForm(initial=initial)
+        # we fill the name_fild of form by name/username of logged user
     content = {'title': 'Check if you fit', 'form': form}
 
     return render(request, 'requirements_form.html', content)
 
 
+def user_login(request):
+    if request.method == 'POST':
+        form = AuthForm(request.POST)
+        if form.is_valid():
+            login(request, form.user)
+            return HttpResponseRedirect('/')
+    else:
+        form = AuthForm()
+
+    return render(request, 'login.html', {'title': 'Authentication', 'form': form})
+
+
+def user_logout(request):
+    logout(request)
+    return HttpResponseRedirect('/login')
+
+
+def user_register(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = User.objects.create_user(username=request.POST['username'],
+                                            first_name=request.POST['first_name'],
+                                            last_name=request.POST['last_name'],
+                                            email=request.POST['email'],
+                                            password=request.POST['password'])
+            login(request, user)    # in the same time we authorize a new user, for convenience
+
+            return HttpResponseRedirect('/')
+    else:
+        form = RegisterForm()
+
+    return render(request, 'login.html', {'title': 'Registration', 'form': form})
+
+
+@login_required(login_url='/login')
+def change_password(request):
+    if request.method == 'POST':
+        form = ChangePasswordForm(request.POST)
+        if form.is_valid():
+            user = User.objects.get(username=request.user.username)
+            old_password = request.POST['old_password']
+            new_password = request.POST['new_password']
+            if user.check_password(old_password):
+                user.set_password(new_password)
+                user.save()
+                login(request, user)    # log in with new user data
+                return HttpResponseRedirect('/')
+    else:
+        form = ChangePasswordForm()
+
+    return render(request, 'change_password.html', {'title': 'Change password', 'form': form})
+
+
 
 
 """Практика / Домашка:
-Пишем страницу логина и логаута руками, проверяем, что всё работает.
-
-Написать страницу для регистрации. (не забываем про set_password)
-Следующая страница должна открываться только залогиненым пользователям
-Пишем страницу для смены пароля. (Запрашиваем текущий пароль 2 раза, и проверяем через check_password)
 Написать страницу с гет формой, для поиска по тексту ваших комментариев, отобразить все найденные частичные совпадение, без учёта регистра.
 Добавить к поиску по комментариям галочку, что бы при нажатой галочке показывало только твои комментарии
 """
