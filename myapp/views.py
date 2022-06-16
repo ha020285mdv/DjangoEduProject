@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 
+from myapp.forms import CheckRequirementsForm
 from myapp.models import Comment, Profile, Article
 
 
@@ -61,3 +62,38 @@ def homework4(request):
     content['task6'] = Comment.objects.filter(content_type_id=article_model_id).order_by('date', '-article__author')[:2]
 
     return render(request, 'homework4.html', content)
+
+
+def check_requirements_form_view(request):
+    if request.method == 'POST':
+        form = CheckRequirementsForm(request.POST)
+        if form.is_valid():
+            name = request.POST['name']
+            sex = request.POST['sex']
+            age = int(request.POST['age'])
+            level = request.POST['english_level']
+
+            is_fit = (sex=='m' and age>=20 and level in ['C1', 'C2']) or \
+                     (sex=='f' and age>=22 and level in ['B2', 'C1', 'C2'])
+            content = {'name': name, 'fit': is_fit, 'title': "Congratulations!" if is_fit else "Don't worry!"}
+
+            return render(request, 'form_answer.html', content)
+    else:
+        form = CheckRequirementsForm()
+    content = {'title': 'Check if you fit', 'form': form}
+
+    return render(request, 'requirements_form.html', content)
+
+
+
+
+"""Практика / Домашка:
+Пишем страницу логина и логаута руками, проверяем, что всё работает.
+
+Написать страницу для регистрации. (не забываем про set_password)
+Следующая страница должна открываться только залогиненым пользователям
+Пишем страницу для смены пароля. (Запрашиваем текущий пароль 2 раза, и проверяем через check_password)
+Написать страницу с гет формой, для поиска по тексту ваших комментариев, отобразить все найденные частичные совпадение, без учёта регистра.
+Добавить к поиску по комментариям галочку, что бы при нажатой галочке показывало только твои комментарии
+"""
+

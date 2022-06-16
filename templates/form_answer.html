@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Rezult:</h1>
+
+<h2>
+    {{name|capfirst}},
+    {% if fit %}
+        you're awesome! <br> We can't wait to meet you!
+    {% else %}
+        never give up and try again later!
+    {% endif %}
+</h2>
+
+{% endblock %}
