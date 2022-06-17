@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils import timezone
 
-from myapp.forms import CheckRequirementsForm, AuthForm, RegisterForm, ChangePasswordForm
+from myapp.forms import CheckRequirementsForm, AuthForm, RegisterForm, ChangePasswordForm, FindCommentsForm
 from myapp.models import Comment, Profile, Article
 
 
@@ -117,11 +117,9 @@ def user_register(request):
                                             email=request.POST['email'],
                                             password=request.POST['password'])
             login(request, user)    # in the same time we authorize a new user, for convenience
-
             return HttpResponseRedirect('/')
     else:
         form = RegisterForm()
-
     return render(request, 'login.html', {'title': 'Registration', 'form': form})
 
 
@@ -144,10 +142,20 @@ def change_password(request):
     return render(request, 'change_password.html', {'title': 'Change password', 'form': form})
 
 
+def find_comments_form_view(request):
+    form = FindCommentsForm(request.GET)
+    comments = {}
+    limit = 25
 
+    if request.GET:
+        text_to_find = request.GET.get('text_to_find', '')
+        comments = Comment.objects.filter(comment__icontains=text_to_find).order_by('-date')
 
-"""Практика / Домашка:
-Написать страницу с гет формой, для поиска по тексту ваших комментариев, отобразить все найденные частичные совпадение, без учёта регистра.
-Добавить к поиску по комментариям галочку, что бы при нажатой галочке показывало только твои комментарии
-"""
+        user = request.user.username if request.GET.get('in_own', False) else False
+        if user:
+            comments = comments.filter(author__login=user)
 
+        comments = comments[:limit]
+
+    content = {'title': 'Searching comments', 'form': form, 'comments': comments}
+    return render(request, 'find_comment.html', content)

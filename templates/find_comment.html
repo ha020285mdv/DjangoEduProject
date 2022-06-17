@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form method="GET">
+    {% for field in form %}
+        <br>
+        {{ field.label_tag }}
+        {{ field }}
+        <br><br>
+        {% if field.help_text %}
+            {{ field.help_text|safe }}
+        {% endif %}
+    {% endfor %}
+    {{form.non_field_errors}}
+    <button type="submit">FIND</button>
+</form>
+    <hr>
+    <ul>
+        {% if not comments %}
+            <p>There are no results... (</p>
+        {% else %}
+            {% for comment in comments %}
+                 <li>
+                     <b>
+                     {% if user.is_authenticated and user.username == comment.author %}
+                         me:
+                     {% else %}
+                         {{comment.author}}:
+                     {% endif %}
+                     </b>
+                     {{comment.comment}}
+                 </li>
+            {% endfor %}
+        {% endif %}
+    </ul>
+
+{% endblock %}

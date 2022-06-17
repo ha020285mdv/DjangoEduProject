@@ -78,3 +78,8 @@ class ChangePasswordForm(forms.Form):
 
         if new_password != new_password2:
             raise forms.ValidationError('Passwords are different')
+
+
+class FindCommentsForm(forms.Form):
+    text_to_find = forms.CharField(label='find', max_length=200, required=False)
+    in_own = forms.BooleanField(required=False)

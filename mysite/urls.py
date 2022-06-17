@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, re_path, include
 
-from myapp.views import uuid, phone_regex, first, articles, archive
+from myapp.views import uuid, phone_regex, first, articles, archive, find_comments_form_view
 from myapp.views import homework4, check_requirements_form_view
 from myapp.views import user_login, user_logout, user_register, change_password
 
@@ -16,6 +16,7 @@ urlpatterns = [
     re_path(r'^(?P<phone>(?:050|066|095|099|067|068|096|097|098|063|093|073|091|092|094){1}\d{7}/{1}$)', phone_regex),
     path('homework4', homework4, name='hw4'),
     path('check_requirements', check_requirements_form_view, name='requirements_form'),
+    path('find_comments', find_comments_form_view, name='find_comments'),
 
     path('login', user_login, name='login'),
     path('logout', user_logout, name='logout'),
