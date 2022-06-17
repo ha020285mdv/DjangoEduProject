@@ -123,8 +123,8 @@ def change_password(request):
         form = ChangePasswordForm(request.POST)
         if form.is_valid():
             user = User.objects.get(username=request.user.username)
-            old_password = request.POST['old_password']
-            new_password = request.POST['new_password']
+            old_password = form.cleaned_data['old_password']
+            new_password = form.cleaned_data['new_password']
             if user.check_password(old_password):
                 user.set_password(new_password)
                 user.save()
