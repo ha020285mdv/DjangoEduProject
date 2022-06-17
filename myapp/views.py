@@ -71,20 +71,14 @@ def check_requirements_form_view(request):
     if request.method == 'POST':
         form = CheckRequirementsForm(request.POST)
         if form.is_valid():
-            name = request.POST['name']
-            sex = request.POST['sex']
-            age = int(request.POST['age'])
-            level = request.POST['english_level']
-
-            is_fit = (sex == 'm' and age >= 20 and level in ['C1', 'C2']) or \
-                     (sex == 'f' and age >= 22 and level in ['B2', 'C1', 'C2'])
+            name = form.cleaned_data['name']
+            is_fit = form.cleaned_data['is_fit']
             content = {'name': name, 'fit': is_fit, 'title': "Congratulations!" if is_fit else "Don't worry!"}
-
             return render(request, 'form_answer.html', content)
     else:
+        # we fill the name_fild of form by name/username of logged user
         initial = {'name': (request.user.first_name or request.user.username) if request.user.is_authenticated else ''}
         form = CheckRequirementsForm(initial=initial)
-        # we fill the name_fild of form by name/username of logged user
     content = {'title': 'Check if you fit', 'form': form}
 
     return render(request, 'requirements_form.html', content)
@@ -111,11 +105,11 @@ def user_register(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
-            user = User.objects.create_user(username=request.POST['username'],
-                                            first_name=request.POST['first_name'],
-                                            last_name=request.POST['last_name'],
-                                            email=request.POST['email'],
-                                            password=request.POST['password'])
+            user = User.objects.create_user(username=form.cleaned_data['username'],
+                                            first_name=form.cleaned_data['first_name'],
+                                            last_name=form.cleaned_data['last_name'],
+                                            email=form.cleaned_data['email'],
+                                            password=form.cleaned_data['password'])
             login(request, user)    # in the same time we authorize a new user, for convenience
             return HttpResponseRedirect('/')
     else:

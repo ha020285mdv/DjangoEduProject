@@ -26,6 +26,19 @@ class CheckRequirementsForm(forms.Form):
     age = forms.IntegerField(label='age', validators=[min, max], initial=18, required=True)
     english_level = forms.ChoiceField(label='english level', choices=CEFR)
 
+    def clean(self):
+        cleaned_data = super().clean()
+        sex = cleaned_data.get('sex')
+        age = int(cleaned_data.get('age'))
+        level = cleaned_data.get('english_level')
+
+        is_fit = (sex == 'm' and age >= 20 and level in ['C1', 'C2']) or \
+                 (sex == 'f' and age >= 22 and level in ['B2', 'C1', 'C2'])
+
+        cleaned_data['is_fit'] = is_fit
+        return cleaned_data
+
+
 
 class AuthForm(forms.Form):
     username = forms.CharField(max_length=100)
@@ -57,11 +70,8 @@ class RegisterForm(forms.Form):
 
         if password != password2:
             raise forms.ValidationError('Passwords are different')
-        try:
-            print(User.objects.get(username=username))
-        except:
-            pass
-        else:
+
+        if User.objects.filter(username=username).exists():
             raise forms.ValidationError(f'Username {username} is already in use')
 
 
@@ -72,7 +82,6 @@ class ChangePasswordForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        old_password = cleaned_data.get('old_password')
         new_password = cleaned_data.get('new_password')
         new_password2 = cleaned_data.get('new_password2')
 
