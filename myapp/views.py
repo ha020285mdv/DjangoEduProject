@@ -72,7 +72,7 @@ def check_requirements_form_view(request):
         form = CheckRequirementsForm(request.POST)
         if form.is_valid():
             name = form.cleaned_data['name']
-            is_fit = form.cleaned_data['is_fit']
+            is_fit = form.is_fit
             content = {'name': name, 'fit': is_fit, 'title': "Congratulations!" if is_fit else "Don't worry!"}
             return render(request, 'form_answer.html', content)
     else:
