@@ -70,12 +70,11 @@ def homework4(request):
 def check_requirements_form_view(request):
     if request.method == 'POST':
         form = CheckRequirementsForm(request.POST)
-        print(form)
-        if form.is_valid():
-            name = form.cleaned_data['name']
-            is_fit = form.is_fit
-            content = {'name': name, 'fit': is_fit, 'title': "Congratulations!" if is_fit else "Don't worry!"}
-            return render(request, 'form_answer.html', content)
+        # if form.is_valid():
+        #     name = form.cleaned_data['name']
+        #     is_fit = form.is_fit
+        #     content = {'name': name, 'fit': is_fit, 'title': "Congratulations!" if is_fit else "Don't worry!"}
+        #     return render(request, 'form_answer.html', content)
     else:
         # we fill the name_fild of form by name/username of logged user
         initial = {'name': (request.user.first_name or request.user.username) if request.user.is_authenticated else ''}

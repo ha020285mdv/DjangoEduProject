@@ -15,6 +15,7 @@
             {{ field.help_text|safe }}
         {% endif %}
     {% endfor %}
+    <h2>{{form.non_field_errors}}</h2>
     <button type="submit">Check if you fit us</button>
 </form>
 
