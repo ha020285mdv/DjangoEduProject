@@ -27,23 +27,12 @@ class CheckRequirementsForm(forms.Form):
     age = forms.IntegerField(label='age', validators=[min, max], initial=18, required=True)
     english_level = forms.ChoiceField(label='english level', choices=CEFR)
 
-    def __init__(
-            self,
-            data=None,
-            files=None,
-            auto_id="id_%s",
-            prefix=None,
-            initial=None,
-            error_class=ErrorList,
-            label_suffix=None,
-            empty_permitted=False,
-            field_order=None,
-            use_required_attribute=None,
-            renderer=None,
-    ):
+    def __init__(self, data=None, files=None, auto_id="id_%s", prefix=None, initial=None, error_class=ErrorList,
+                 label_suffix=None, empty_permitted=False, field_order=None, use_required_attribute=None,
+                 renderer=None, ):
         super().__init__(data, files, auto_id, prefix, initial, error_class, label_suffix, empty_permitted, field_order,
                          use_required_attribute, renderer)
-        self.is_fit = None
+        self.is_fit = False
 
     def clean(self):
         cleaned_data = super().clean()
@@ -51,10 +40,8 @@ class CheckRequirementsForm(forms.Form):
         age = int(cleaned_data.get('age'))
         level = cleaned_data.get('english_level')
 
-        is_fit = (sex == 'm' and age >= 20 and level in ['C1', 'C2']) or \
-                 (sex == 'f' and age >= 22 and level in ['B2', 'C1', 'C2'])
-
-        self.is_fit = is_fit
+        self.is_fit = (sex == 'm' and age >= 20 and level in ['C1', 'C2']) or \
+                      (sex == 'f' and age >= 22 and level in ['B2', 'C1', 'C2'])
 
 
 class AuthForm(forms.Form):
