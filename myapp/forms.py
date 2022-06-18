@@ -36,9 +36,7 @@ class CheckRequirementsForm(forms.Form):
         self.is_fit = (sex == 'm' and age >= 20 and level in ['C1', 'C2']) or \
                       (sex == 'f' and age >= 22 and level in ['B2', 'C1', 'C2'])
 
-        if self.is_fit:
-            self.add_error(None, f"{self.cleaned_data['name']}, you're awesome! We can't wait to meet you!")
-        else:
+        if not self.is_fit:
             self.add_error(None, 'Never give up and try again later!')
 
 
