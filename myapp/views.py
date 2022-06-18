@@ -70,6 +70,7 @@ def homework4(request):
 def check_requirements_form_view(request):
     if request.method == 'POST':
         form = CheckRequirementsForm(request.POST)
+        print(form)
         if form.is_valid():
             name = form.cleaned_data['name']
             is_fit = form.is_fit

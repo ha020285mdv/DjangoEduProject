@@ -27,13 +27,6 @@ class CheckRequirementsForm(forms.Form):
     age = forms.IntegerField(label='age', validators=[min, max], initial=18, required=True)
     english_level = forms.ChoiceField(label='english level', choices=CEFR)
 
-    def __init__(self, data=None, files=None, auto_id="id_%s", prefix=None, initial=None, error_class=ErrorList,
-                 label_suffix=None, empty_permitted=False, field_order=None, use_required_attribute=None,
-                 renderer=None, ):
-        super().__init__(data, files, auto_id, prefix, initial, error_class, label_suffix, empty_permitted, field_order,
-                         use_required_attribute, renderer)
-        self.is_fit = False
-
     def clean(self):
         cleaned_data = super().clean()
         sex = cleaned_data.get('sex')
