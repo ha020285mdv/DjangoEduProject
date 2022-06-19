@@ -1,8 +1,12 @@
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils import timezone
 
+from myapp.forms import CheckRequirementsForm, AuthForm, RegisterForm, ChangePasswordForm, FindCommentsForm
 from myapp.models import Comment, Profile, Article
 
 
@@ -61,3 +65,90 @@ def homework4(request):
     content['task6'] = Comment.objects.filter(content_type_id=article_model_id).order_by('date', '-article__author')[:2]
 
     return render(request, 'homework4.html', content)
+
+
+def check_requirements_form_view(request):
+    if request.method == 'POST':
+        form = CheckRequirementsForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            content = {'name': name, 'title': "Congratulations!"}
+            return render(request, 'form_answer.html', content)
+    else:
+        # we fill the name_fild of form by name/username of logged user
+        initial = {'name': (request.user.first_name or request.user.username) if request.user.is_authenticated else ''}
+        form = CheckRequirementsForm(initial=initial)
+    content = {'title': 'Check if you fit', 'form': form}
+
+    return render(request, 'requirements_form.html', content)
+
+
+def user_login(request):
+    if request.method == 'POST':
+        form = AuthForm(request.POST)
+        if form.is_valid():
+            login(request, form.user)
+            return HttpResponseRedirect('/')
+    else:
+        form = AuthForm()
+
+    return render(request, 'login.html', {'title': 'Authentication', 'form': form})
+
+
+def user_logout(request):
+    logout(request)
+    return HttpResponseRedirect('/login')
+
+
+def user_register(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = User.objects.create_user(username=form.cleaned_data['username'],
+                                            first_name=form.cleaned_data['first_name'],
+                                            last_name=form.cleaned_data['last_name'],
+                                            email=form.cleaned_data['email'],
+                                            password=form.cleaned_data['password'])
+            login(request, user)    # in the same time we authorize a new user, for convenience
+            return HttpResponseRedirect('/')
+    else:
+        form = RegisterForm()
+    return render(request, 'login.html', {'title': 'Registration', 'form': form})
+
+
+@login_required(login_url='/login')
+def change_password(request):
+    if request.method == 'POST':
+        form = ChangePasswordForm(request.POST)
+        if form.is_valid():
+            user = User.objects.get(username=request.user.username)
+            old_password = form.cleaned_data['old_password']
+            new_password = form.cleaned_data['new_password']
+            if user.check_password(old_password):
+                user.set_password(new_password)
+                user.save()
+                login(request, user)    # log in with new user data
+                return HttpResponseRedirect('/')
+    else:
+        form = ChangePasswordForm()
+
+    return render(request, 'change_password.html', {'title': 'Change password', 'form': form})
+
+
+def find_comments_form_view(request):
+    form = FindCommentsForm(request.GET)
+    comments = {}
+    limit = 25
+
+    if request.GET:
+        text_to_find = request.GET.get('text_to_find', '')
+        comments = Comment.objects.filter(comment__icontains=text_to_find).order_by('-date')
+
+        user = request.user.username if request.GET.get('in_own', False) else False
+        if user:
+            comments = comments.filter(author__login=user)
+
+        comments = comments[:limit]
+
+    content = {'title': 'Searching comments', 'form': form, 'comments': comments}
+    return render(request, 'find_comment.html', content)
